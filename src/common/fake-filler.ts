@@ -1,4 +1,5 @@
 import ElementFiller from "src/common/element-filler";
+import { findOpenContainer, findScopeContainer } from "src/common/fill-scope";
 import { IFakeFillerOptions } from "src/types";
 
 class FakeFiller {
@@ -31,8 +32,28 @@ class FakeFiller {
     this.clickedElement = element;
   }
 
+  /**
+   * Works out the container that a fill should be limited to, so that a popup or
+   * a slide gets filled without touching the page behind it. Returns
+   * `undefined` when the whole page should be filled.
+   */
+  private resolveFillScope(): HTMLElement | undefined {
+    const start: HTMLElement | null = this.clickedElement || (document.activeElement as HTMLElement | null);
+
+    if (start && start.tagName.toLowerCase() !== "body" && start.tagName.toLowerCase() !== "html") {
+      return findScopeContainer(start);
+    }
+
+    // Nothing is focused. If a popup or a slide is open then that is what the
+    // user is looking at, so fill only that.
+    return findOpenContainer();
+  }
+
   public fillAllInputs(): void {
-    this.fillAllElements(document);
+    const container = this.resolveFillScope();
+
+    this.fillAllElements(container || document);
+    this.setClickedElement(undefined);
   }
 
   public fillThisInput(): void {
@@ -59,10 +80,13 @@ class FakeFiller {
     const element = this.clickedElement || document.activeElement;
 
     if (element && element.tagName.toLowerCase() !== "body") {
-      const form = element.closest("form");
+      // A popup or slide is a tighter boundary than the surrounding <form>,
+      // which is often the whole page when the popup markup is rendered
+      // outside of it.
+      const container = findScopeContainer(element) || element.closest("form");
 
-      if (form) {
-        this.fillAllElements(form);
+      if (container) {
+        this.fillAllElements(container);
       }
     }
 

@@ -185,22 +185,22 @@ const CreateContextMenus = (enableContextMenu: boolean): void => {
   chrome.contextMenus.removeAll();
 
   if (enableContextMenu) {
-    chrome.contextMenus.create({
-      id: "fake-filler-all",
-      title: "Fill all inputs",
-      contexts: ["page", "editable"],
-    });
-
+    // NOTE: only ONE item is registered on purpose.
+    //
+    // Chrome groups an extension's context menu entries into a submenu named
+    // after the extension whenever there is more than one, which forces an
+    // extra hover + click. With a single entry it is shown inline instead.
+    //
+    // "page" is included because Chrome treats only real text inputs as the
+    // "editable" context - <select>, labels, headings and plain space inside a
+    // popup or carousel slide are not "editable" and would show no menu at all.
+    //
+    // "Fill all inputs" is still reachable from the toolbar button and the
+    // Ctrl+Shift+F shortcut.
     chrome.contextMenus.create({
       id: "fake-filler-form",
       title: "Fill this form",
-      contexts: ["editable"],
-    });
-
-    chrome.contextMenus.create({
-      id: "fake-filler-input",
-      title: "Fill this input",
-      contexts: ["editable"],
+      contexts: ["page", "editable"],
     });
   }
 };

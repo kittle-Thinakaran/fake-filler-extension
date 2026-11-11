@@ -1,3 +1,4 @@
+import { cities, countries, states } from "src/common/dummy-data";
 import { saveOptionsToDb } from "src/common/firebase";
 import { IFakeFillerOptions, ICustomField } from "src/types";
 
@@ -68,6 +69,36 @@ const FakeFillerDefaultOptions = (): IFakeFillerOptions => {
   options.fields.push(DEFAULT_EMAIL_CUSTOM_FIELD);
 
   options.fields.push({
+    type: "regex",
+    name: "Address Line 1",
+    match: ["address1", "addressline1", "addressline", "address", "streetaddress", "street"],
+    template:
+      // tslint:disable-next-line:max-line-length
+      "([1-9][0-9][0-9]?) (North |East |West |South |||||)(Green |White |Rocky ||||||||)(Nobel|Fabien|Hague|Oak|Second|First|Cowley|Clarendon|New|Old|Milton) (Avenue|Boulevard|Court|Drive|Extension|Freeway|Lane|Parkway|Road|Street)",
+  });
+
+  options.fields.push({
+    type: "randomized-list",
+    name: "City",
+    match: ["city", "town"],
+    list: cities,
+  });
+
+  options.fields.push({
+    type: "randomized-list",
+    name: "State",
+    match: ["state", "province"],
+    list: states,
+  });
+
+  options.fields.push({
+    type: "randomized-list",
+    name: "Country",
+    match: ["country"],
+    list: countries,
+  });
+
+  options.fields.push({
     type: "organization",
     name: "Organization or Company Name",
     match: ["organization", "organisation", "company"],
@@ -89,7 +120,7 @@ const FakeFillerDefaultOptions = (): IFakeFillerOptions => {
   options.fields.push({
     type: "number",
     name: "A Random Number between 1 and 1000",
-    match: ["integer", "number", "numeric", "income", "price", "qty", "quantity"],
+    match: ["integer", "number", "numeric", "income", "price", "qty", "quantity", "amount", "creditlimit"],
     min: 1,
     max: 1000,
     decimalPlaces: 0,
@@ -101,6 +132,15 @@ const FakeFillerDefaultOptions = (): IFakeFillerOptions => {
     match: ["zip"],
     min: 10000,
     max: 99999,
+    decimalPlaces: 0,
+  });
+
+  options.fields.push({
+    type: "number",
+    name: "Pincode",
+    match: ["pincode", "postcode", "postalcode"],
+    min: 100000,
+    max: 999999,
     decimalPlaces: 0,
   });
 
@@ -141,18 +181,18 @@ const FakeFillerDefaultOptions = (): IFakeFillerOptions => {
   });
 
   options.fields.push({
-    type: "url",
-    name: "Website Address",
-    match: ["website"],
+    type: "text",
+    name: "Notes",
+    match: ["notes", "note", "remarks", "comments", "comment", "description", "message", "bio"],
+    min: 10,
+    max: 30,
+    maxLength: 200,
   });
 
   options.fields.push({
-    type: "regex",
-    name: "Address Line 1",
-    match: ["address1", "addressline1"],
-    template:
-      // tslint:disable-next-line:max-line-length
-      "([1-9][0-9][0-9]?) (North |East |West |South |||||)(Green |White |Rocky ||||||||)(Nobel|Fabien|Hague|Oak|Second|First|Cowley|Clarendon|New|Old|Milton) (Avenue|Boulevard|Court|Drive|Extension|Freeway|Lane|Parkway|Road|Street)",
+    type: "url",
+    name: "Website Address",
+    match: ["website"],
   });
 
   options.fields.push({

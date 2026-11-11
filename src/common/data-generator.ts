@@ -33,6 +33,34 @@ class DataGenerator {
     return resultWord;
   }
 
+  private limitLength(text: string, maxLength: number): string {
+    if (!maxLength || maxLength <= 0 || text.length <= maxLength) {
+      return text;
+    }
+
+    const clippedText = text.substring(0, maxLength + 1);
+    const lastSpaceIndex = clippedText.lastIndexOf(" ");
+
+    if (lastSpaceIndex > 0) {
+      return clippedText.substring(0, lastSpaceIndex);
+    }
+
+    return text.substring(0, maxLength);
+  }
+
+  private randomSentence(preferredMaxLength = 0): string {
+    let { sentences } = data;
+
+    if (preferredMaxLength > 0) {
+      const fittingSentences = sentences.filter((sentence) => sentence.length <= preferredMaxLength);
+      if (fittingSentences.length > 0) {
+        sentences = fittingSentences;
+      }
+    }
+
+    return sentences[this.randomNumber(0, sentences.length - 1)];
+  }
+
   public words(wordCount: number, maxLength = 0): string {
     let resultPhrase = "";
     let word = "";
@@ -154,16 +182,27 @@ class DataGenerator {
 
   public paragraph(minWords: number, maxWords: number, maxLength: number): string {
     const wordCount = this.randomNumber(minWords, maxWords);
-    const resultPhrase = this.words(wordCount, maxLength);
+    let resultPhrase = "";
+    let currentWordCount = 0;
 
-    return resultPhrase.replace(/[?.!,;]?$/, ".");
+    while (currentWordCount < wordCount) {
+      const sentence = this.randomSentence(maxLength);
+
+      resultPhrase += resultPhrase.length > 0 ? ` ${sentence}` : sentence;
+      currentWordCount += sentence.split(" ").length;
+
+      if (maxLength > 0 && resultPhrase.length >= maxLength) {
+        break;
+      }
+    }
+
+    const limitedPhrase = this.limitLength(resultPhrase, maxLength);
+    return /[.!?]$/.test(limitedPhrase) ? limitedPhrase : `${limitedPhrase}.`;
   }
 
   public phrase(maxLength: number): string {
-    const length = this.randomNumber(5, 20);
-    const resultPhrase = this.words(length, maxLength);
-
-    return resultPhrase.replace(/[^\w\s]|_/g, "").replace(/\s+/g, " ");
+    const sentence = this.randomSentence(maxLength);
+    return this.limitLength(sentence, maxLength);
   }
 
   public website(): string {

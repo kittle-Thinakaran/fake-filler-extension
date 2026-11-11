@@ -372,7 +372,7 @@ class ElementFiller {
         if (element && element.maxLength && element.maxLength < maxLength) {
           maxLength = element.maxLength;
         }
-        return this.generator.paragraph(minWords, maxWords, maxWords);
+        return this.generator.paragraph(minWords, maxWords, maxLength);
       }
 
       case "alphanumeric": {
